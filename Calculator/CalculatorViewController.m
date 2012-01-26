@@ -7,25 +7,51 @@
 //
 
 #import "CalculatorViewController.h"
+#import "CalculatorBrain.h"
 
 @interface CalculatorViewController() {
 }
 @property BOOL typingANumber;
+@property(strong, nonatomic) CalculatorBrain* brain;
 @end
 
 @implementation CalculatorViewController
 @synthesize display;
 @synthesize typingANumber = _typingANumber;
+@synthesize brain = _brain;
 
+- (CalculatorBrain *) brain {
+    if (!_brain) {
+        _brain = [[CalculatorBrain alloc] init];
+    }
+    
+    return _brain;
+}
 
 - (IBAction)digitPressed:(UIButton *)sender {
     if (self.typingANumber) {
-        self.display.text = [self.display.text stringByAppendingString:sender.currentTitle];
-    } else if (![@"0" isEqualToString:sender.currentTitle]) {
+        if (![@"0" isEqualToString:self.display.text]) {
+            self.display.text = [self.display.text stringByAppendingString:sender.currentTitle];
+        } else {
+            self.display.text = sender.currentTitle;
+        }
+    } else {
         self.typingANumber = YES;
         self.display.text = sender.currentTitle;
     }
 }
 
+- (IBAction)enterPressed {
+    self.typingANumber = NO;
+    [self.brain pushOperand:[self.display.text doubleValue]];
+}
 
+- (IBAction)operationPressed:(UIButton *)sender {
+    if (self.typingANumber) {
+        [self enterPressed];
+    }
+    
+    double result = [self.brain performOperation:sender.currentTitle];
+    self.display.text = [NSString stringWithFormat:@"%g", result];
+}
 @end
