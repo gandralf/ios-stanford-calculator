@@ -16,7 +16,8 @@
 @end
 
 @implementation CalculatorViewController
-@synthesize display;
+@synthesize display = _display;
+@synthesize history = _history;
 @synthesize typingANumber = _typingANumber;
 @synthesize brain = _brain;
 
@@ -44,6 +45,7 @@
 - (IBAction)enterPressed {
     self.typingANumber = NO;
     [self.brain pushOperand:[self.display.text doubleValue]];
+    self.history.text = self.brain.description;
 }
 
 - (IBAction)operationPressed:(UIButton *)sender {
@@ -53,5 +55,11 @@
     
     double result = [self.brain performOperation:sender.currentTitle];
     self.display.text = [NSString stringWithFormat:@"%g", result];
+    self.history.text = self.brain.description;
+}
+
+- (void)viewDidUnload {
+    [self setHistory:nil];
+    [super viewDidUnload];
 }
 @end

@@ -11,11 +11,13 @@
 @interface CalculatorBrain() {
 }
 @property(nonatomic, strong) NSMutableArray* operatorStack;
+@property(nonatomic, strong) NSString* history;
 @end
 
 @implementation CalculatorBrain
 
 @synthesize operatorStack = _operatorStack;
+@synthesize history = _history;
 
 - (NSMutableArray *) operatorStack {
     if (!_operatorStack) {
@@ -25,8 +27,21 @@
     return _operatorStack;
 }
 
+- (NSString *)history {
+    if (!_history) {
+        _history = @"";
+    }
+    
+    return _history;
+}
+
 - (void) pushOperand:(double)number {
     [self.operatorStack addObject:[NSNumber numberWithDouble:number]];
+    if (self.operatorStack.count == 1) {
+        self.history = [NSString stringWithFormat:@"%g", number];
+    } else {
+        self.history = [self.history stringByAppendingFormat:@" %g", number];
+    }
 }
 
 - (double) popOperand {
@@ -52,11 +67,22 @@
         } else if ([@"/" isEqualToString:operation]) {
             result = a / b;
         }
+
+        self.history = [self.history stringByAppendingFormat:@" %@", operation];
+        if (self.operatorStack.count == 0) {
+            self.history = [self.history stringByAppendingString:@" ="];
+        }
+        
+        [self.operatorStack addObject:[NSNumber numberWithDouble:result]];
     } else {
         result = [[self.operatorStack lastObject] doubleValue];
     }
     
     return result;
+}
+
+- (NSString *)description {
+    return self.history;
 }
 
 @end
