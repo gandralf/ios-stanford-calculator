@@ -8,58 +8,38 @@
 
 #import "CalculatorViewController.h"
 #import "CalculatorBrain.h"
+#import "CalculatorIO.h"
 
-@interface CalculatorViewController() {
-}
-@property BOOL typingANumber;
-@property(strong, nonatomic) CalculatorBrain* brain;
+@interface CalculatorViewController()
+@property(strong, nonatomic) CalculatorIO* calculatorIO;
 @end
 
 @implementation CalculatorViewController
 @synthesize display = _display;
 @synthesize history = _history;
-@synthesize typingANumber = _typingANumber;
-@synthesize brain = _brain;
+@synthesize calculatorIO = _calculatorIO;
 
-- (CalculatorBrain *) brain {
-    if (!_brain) {
-        _brain = [[CalculatorBrain alloc] init];
+- (CalculatorIO *)calculatorIO {
+    if (!_calculatorIO) {
+        _calculatorIO = [[CalculatorIO alloc] init];
     }
     
-    return _brain;
+    return _calculatorIO;
 }
 
 - (IBAction)digitPressed:(UIButton *)sender {
-    if (self.typingANumber) {
-        if (![@"0" isEqualToString:self.display.text]) {
-            self.display.text = [self.display.text stringByAppendingString:sender.currentTitle];
-        } else {
-            self.display.text = sender.currentTitle;
-        }
-    } else {
-        self.typingANumber = YES;
-        self.display.text = sender.currentTitle;
-    }
+    [self.calculatorIO digitPressed:sender.currentTitle];
+    self.display.text = self.calculatorIO.display;
 }
 
 - (IBAction)enterPressed {
-    self.typingANumber = NO;
-    [self.brain pushOperand:[self.display.text doubleValue]];
-    self.history.text = self.brain.description;
+    [self.calculatorIO enterPressed];
+    self.history.text = self.calculatorIO.history;
 }
 
 - (IBAction)operationPressed:(UIButton *)sender {
-    if (self.typingANumber) {
-        [self enterPressed];
-    }
-    
-    double result = [self.brain performOperation:sender.currentTitle];
-    self.display.text = [NSString stringWithFormat:@"%g", result];
-    self.history.text = self.brain.description;
-}
-
-- (void)viewDidUnload {
-    [self setHistory:nil];
-    [super viewDidUnload];
+    [self.calculatorIO operationPressed:sender.currentTitle];
+    self.display.text = self.calculatorIO.display;
+    self.history.text = self.calculatorIO.history;
 }
 @end
