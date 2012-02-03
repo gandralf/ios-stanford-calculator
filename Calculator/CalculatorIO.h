@@ -13,5 +13,11 @@
 @property(strong,nonatomic) NSString *history;
 - (void)digitPressed:(NSString *)digit;
 - (void)enterPressed;
+- (void)clearPressed;
+- (void)backspacePressed;
+- (void)dotPressed;
+- (void)plusMinusPressed;
+- (void)piPressed;
+- (void)eulerPressed;
 - (void)operationPressed:(NSString *)operation;
 @end

@@ -70,7 +70,7 @@
 
         self.history = [self.history stringByAppendingFormat:@" %@", operation];
         if (self.operatorStack.count == 0) {
-            self.history = [self.history stringByAppendingString:@" ="];
+            self.history = [self.history stringByAppendingFormat:@" = %g", result];
         }
         
         [self.operatorStack addObject:[NSNumber numberWithDouble:result]];
@@ -83,6 +83,11 @@
 
 - (NSString *)description {
     return self.history;
+}
+
+- (void) clear {
+    [self.operatorStack removeAllObjects];
+    self.history = @"";
 }
 
 @end

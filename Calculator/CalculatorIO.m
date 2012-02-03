@@ -58,6 +58,18 @@
     
 }
 
+- (void)dotPressed {
+    if (!self.typingANumber) {
+        self.display = @"0.";
+        self.typingANumber = YES;
+    } else {
+        NSRange range = [self.display rangeOfString:@"." options:NSCaseInsensitiveSearch];
+        if (range.location == NSNotFound) {
+            self.display = [self.display stringByAppendingString:@"."];
+        }
+    }
+}
+
 - (void)enterPressed {
     self.typingANumber = NO;
     [self.brain pushOperand:[self.display doubleValue]];
@@ -72,6 +84,35 @@
     double result = [self.brain performOperation:operation];
     self.display = [NSString stringWithFormat:@"%g", result];
     self.history = self.brain.description;
+}
+
+- (void)clearPressed {
+    [self.brain clear];
+    self.display = @"0";
+    self.history = self.brain.description;
+}
+
+- (void)backspacePressed {
+    if (self.typingANumber) {
+        if (self.display.length > 1) {
+            self.display = [self.display substringToIndex:self.display.length -1];
+        } else if (self.display.length == 1) {
+            self.display = @"0";
+        }
+    }
+}
+
+- (void)plusMinusPressed {
+    double result = [self.display doubleValue] * -1;
+    self.display = [NSString stringWithFormat:@"%g", result];
+    self.typingANumber = YES;
+}
+
+- (void)piPressed {
+    
+}
+- (void)eulerPressed {
+    
 }
 
 @end
