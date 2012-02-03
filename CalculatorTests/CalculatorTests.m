@@ -47,6 +47,16 @@
     [self.calculatorIO clearPressed];
 }
 
+- (void)pressPi {
+    [self.calculatorIO piPressed];
+    STAssertEqualObjects(@"3.14159", self.calculatorIO.display, nil);
+}
+
+- (void)pressEuler {
+    [self.calculatorIO eulerPressed];
+    STAssertEqualObjects(@"2.71828", self.calculatorIO.display, nil);
+}
+
 - (void)pressBackspace:(NSString *)displayText {
     [self.calculatorIO backspacePressed];
     STAssertEqualObjects(self.calculatorIO.display, displayText, nil);
@@ -64,6 +74,11 @@
 
 - (void)pressOperation:(NSString *)operation Wait:(NSString *) displayText {
     [self.calculatorIO operationPressed:operation];
+    STAssertEqualObjects(self.calculatorIO.display, displayText, nil);
+}
+
+- (void)pressFunction:(NSString *)function Wait:(NSString *) displayText {
+    [self.calculatorIO functionPressed:function];
     STAssertEqualObjects(self.calculatorIO.display, displayText, nil);
 }
 
@@ -141,6 +156,18 @@
     [self pressPlusMinus:@"-3"];
     [self pressEnter];
     [self pressPlusMinus:@"3"];
+}
+
+- (void)testPiAndEulerPressed {
+    [self pressPi];
+    [self pressEuler];
+}
+
+- (void)testFunctionsPressed {
+    [self pressDigit:@"9" Wait:@"9"];
+    [self pressDigit:@"0" Wait:@"90"];
+    [self pressFunction:@"sin" Wait:@"1"];
+    STAssertEqualObjects(@"90 sin = 1", self.calculatorIO.history, nil);
 }
 
 @end

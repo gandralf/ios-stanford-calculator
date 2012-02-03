@@ -78,4 +78,9 @@
     [self.calculatorIO eulerPressed];
     [self refresh];
 }
+
+- (IBAction)functionPressed:(UIButton *)sender {
+    [self.calculatorIO functionPressed:sender.currentTitle];
+    [self refresh];
+}
 @end

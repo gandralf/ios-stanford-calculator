@@ -12,4 +12,5 @@
 - (void) pushOperand:(double)number;
 - (double) performOperation:(NSString*)operation;
 - (void) clear;
+- (double) performFunction:(NSString *)operation;
 @end

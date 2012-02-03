@@ -20,4 +20,5 @@
 - (void)piPressed;
 - (void)eulerPressed;
 - (void)operationPressed:(NSString *)operation;
+- (void)functionPressed:(NSString *)function;
 @end

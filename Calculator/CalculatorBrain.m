@@ -6,6 +6,8 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
+#import <math.h>
+
 #import "CalculatorBrain.h"
 
 @interface CalculatorBrain() {
@@ -52,6 +54,15 @@
     return [lastObject doubleValue];
 }
 
+- (void) updateHistory:operation withResult:(double)result {
+    self.history = [self.history stringByAppendingFormat:@" %@", operation];
+    if (self.operatorStack.count == 0) {
+        self.history = [self.history stringByAppendingFormat:@" = %g", result];
+    }
+    
+    [self.operatorStack addObject:[NSNumber numberWithDouble:result]];
+}
+
 - (double) performOperation:(NSString *)operation {
     double result = 0;
     if (self.operatorStack.count > 1) {
@@ -67,16 +78,28 @@
         } else if ([@"/" isEqualToString:operation]) {
             result = a / b;
         }
-
-        self.history = [self.history stringByAppendingFormat:@" %@", operation];
-        if (self.operatorStack.count == 0) {
-            self.history = [self.history stringByAppendingFormat:@" = %g", result];
-        }
         
-        [self.operatorStack addObject:[NSNumber numberWithDouble:result]];
+        [self updateHistory:operation withResult:result];
     } else {
         result = [[self.operatorStack lastObject] doubleValue];
     }
+    
+    return result;
+}
+
+- (double) performFunction:(NSString *)function {
+    double result;
+    if ([@"sin" isEqualToString:function]) {
+        result = sin([self popOperand] * M_PI / 180);
+    } else if ([@"cos" isEqualToString:function]) {
+        result = cos([self popOperand] * M_PI / 180);
+    } else if ([@"tan" isEqualToString:function]) {
+        result = tan([self popOperand] * M_PI / 180);
+    } else if ([@"log" isEqualToString:function]) {
+        result = log([self popOperand]);
+    }
+    
+    [self updateHistory:function withResult:result];
     
     return result;
 }

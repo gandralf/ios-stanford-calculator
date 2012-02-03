@@ -6,6 +6,8 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
+#include <math.h>
+
 #import "CalculatorIO.h"
 #import "CalculatorBrain.h"
 
@@ -109,10 +111,19 @@
 }
 
 - (void)piPressed {
-    
-}
-- (void)eulerPressed {
-    
+    self.display = [NSString stringWithFormat:@"%g", M_PI];
 }
 
+- (void)eulerPressed {
+    self.display = [NSString stringWithFormat:@"%g", M_E];
+}
+
+- (void)functionPressed:(NSString *)function {
+    if (self.typingANumber) {
+        [self enterPressed];
+    }
+    
+    self.display = [NSString stringWithFormat:@"%g", [self.brain performFunction:function]];
+    self.history = self.brain.description;
+}
 @end
