@@ -108,10 +108,13 @@
 
 - (void)testHistory {
     [self pressDigit:@"4" Wait:@"4"];
+    STAssertEqualObjects(self.calculatorIO.history, @"", nil);
     [self pressEnter];
+    STAssertEqualObjects(self.calculatorIO.history, @"4", nil);
     [self pressDigit:@"6" Wait:@"6"];
+    STAssertEqualObjects(self.calculatorIO.history, @"4", nil);
     [self pressOperation:@"+" Wait:@"10"];
-    STAssertEqualObjects(@"4 6 + = 10", self.calculatorIO.history, nil);
+    STAssertEqualObjects(self.calculatorIO.history, @"4 6 + = 10", nil);
 }
 
 - (void)testClear {

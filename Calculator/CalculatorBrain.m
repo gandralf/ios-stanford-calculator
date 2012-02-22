@@ -12,62 +12,81 @@
 
 @interface CalculatorBrain() {
 }
-@property(nonatomic, strong) NSMutableArray* operatorStack;
-@property(nonatomic, strong) NSString* history;
+@property(nonatomic, readonly) NSString *history;
++ (double)evaluateProgram:(NSMutableArray *)workProgram withVariables:(NSDictionary *)varibles;
 @end
 
 @implementation CalculatorBrain
 
-@synthesize operatorStack = _operatorStack;
-@synthesize history = _history;
+@synthesize program = _program;
 
-- (NSMutableArray *) operatorStack {
-    if (!_operatorStack) {
-        _operatorStack = [[NSMutableArray alloc] init];
+- (NSMutableArray *) program {
+    if (!_program) {
+        _program = [[NSMutableArray alloc] init];
     }
     
-    return _operatorStack;
+    return _program;
 }
 
-- (NSString *)history {
-    if (!_history) {
-        _history = @"";
-    }
-    
-    return _history;
+-(NSString *)history {
+    return [CalculatorBrain descriptionOfProgram:self.program];
 }
 
 - (void) pushOperand:(double)number {
-    [self.operatorStack addObject:[NSNumber numberWithDouble:number]];
-    if (self.operatorStack.count == 1) {
-        self.history = [NSString stringWithFormat:@"%g", number];
-    } else {
-        self.history = [self.history stringByAppendingFormat:@" %g", number];
-    }
-}
-
-- (double) popOperand {
-    NSNumber* lastObject = [self.operatorStack lastObject];
-    if (self.operatorStack.count > 0) {
-        [self.operatorStack removeLastObject];
-    }
-    return [lastObject doubleValue];
-}
-
-- (void) updateHistory:operation withResult:(double)result {
-    self.history = [self.history stringByAppendingFormat:@" %@", operation];
-    if (self.operatorStack.count == 0) {
-        self.history = [self.history stringByAppendingFormat:@" = %g", result];
-    }
-    
-    [self.operatorStack addObject:[NSNumber numberWithDouble:result]];
+    [self.program addObject:[NSNumber numberWithDouble:number]];
 }
 
 - (double) performOperation:(NSString *)operation {
+    [self.program addObject:operation];
+    return [CalculatorBrain runProgram:self.program usingVariableValues:nil];
+}
+
+- (double) performFunction:(NSString *)function {
+    return [self performOperation:function];
+}
+
+
++ (NSString *)descriptionOfProgram:(id)program {
+    NSString *result;
+    
+    if ([program count] > 0) {
+        result = [program componentsJoinedByString:@" "];
+        
+        if ([program count] > 1) {
+            NSMutableArray *consumeableProgram = [program mutableCopy];
+            double programResult = [self evaluateProgram:consumeableProgram withVariables:nil];
+            if (![consumeableProgram count]) {
+                result = [result stringByAppendingFormat:@" = %g", programResult];
+            }
+        }
+        
+    } else {
+        result = @"";
+    }
+
+    return result;
+}
+
++ (double)evaluateProgram:(NSMutableArray *)workProgram withVariables:(NSDictionary *)varibles {
     double result = 0;
-    if (self.operatorStack.count > 1) {
-        double b = [self popOperand];
-        double a = [self popOperand];
+    id topOfStack = [workProgram lastObject];
+    [workProgram removeLastObject];
+    if ([topOfStack isKindOfClass:[NSNumber class]]) {
+        result = [topOfStack doubleValue];
+    } else if ([@"sin" isEqualToString:topOfStack]) {
+        result = sin([self evaluateProgram:workProgram withVariables:varibles] * M_PI / 180);
+    } else if ([@"cos" isEqualToString:topOfStack]) {
+        result = cos([self evaluateProgram:workProgram withVariables:varibles] * M_PI / 180);
+    } else if ([@"tan" isEqualToString:topOfStack]) {
+        result = tan([self evaluateProgram:workProgram withVariables:varibles] * M_PI / 180);
+    } else if ([@"log" isEqualToString:topOfStack]) {
+        result = log([self evaluateProgram:workProgram withVariables:varibles]);
+    } else if ([@"sqrt" isEqualToString:topOfStack]) {
+        result = sqrt([self evaluateProgram:workProgram withVariables:varibles]);
+    } else if (topOfStack) {
+        NSString *operation = topOfStack;
+        double b = [self evaluateProgram:workProgram withVariables:varibles];
+        double a = [self evaluateProgram:workProgram withVariables:varibles];
         
         if ([@"+" isEqualToString:operation]) {
             result = a + b;
@@ -78,30 +97,27 @@
         } else if ([@"/" isEqualToString:operation]) {
             result = a / b;
         }
-        
-        [self updateHistory:operation withResult:result];
-    } else {
-        result = [[self.operatorStack lastObject] doubleValue];
     }
     
     return result;
 }
 
-- (double) performFunction:(NSString *)function {
-    double result;
-    if ([@"sin" isEqualToString:function]) {
-        result = sin([self popOperand] * M_PI / 180);
-    } else if ([@"cos" isEqualToString:function]) {
-        result = cos([self popOperand] * M_PI / 180);
-    } else if ([@"tan" isEqualToString:function]) {
-        result = tan([self popOperand] * M_PI / 180);
-    } else if ([@"log" isEqualToString:function]) {
-        result = log([self popOperand]);
++ (double)runProgram:(id)program 
+ usingVariableValues:(NSDictionary *)varibles {
+    double result = 0;
+    
+    if ([program isKindOfClass:[NSArray class]]) {
+        NSArray *programArray = program;
+        NSMutableArray *workProgram = [programArray mutableCopy];
+        
+        result = [self evaluateProgram: workProgram withVariables:varibles];
     }
     
-    [self updateHistory:function withResult:result];
-    
     return result;
+}
+
++ (NSSet *)variablesUsedInProram:(id)program {
+    return nil;
 }
 
 - (NSString *)description {
@@ -109,8 +125,7 @@
 }
 
 - (void) clear {
-    [self.operatorStack removeAllObjects];
-    self.history = @"";
+    [self.program removeAllObjects];
 }
 
 @end

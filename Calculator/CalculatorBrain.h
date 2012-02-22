@@ -13,4 +13,10 @@
 - (double) performOperation:(NSString*)operation;
 - (void) clear;
 - (double) performFunction:(NSString *)operation;
+@property(nonatomic, strong, readonly) id program;
+// Program style
++ (NSString *)descriptionOfProgram:(id)program;
++ (double)runProgram:(id)program 
+ usingVariableValues:(NSDictionary *)varibles;
++ (NSSet *)variablesUsedInProram:(id)program;
 @end
